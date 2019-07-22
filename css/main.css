@@ -1671,6 +1671,7 @@ pre .javascript .function {
   max-width: 96px;
   height: auto;
   border: 2px solid #333;
+  border-radius: 50%;
 }
 .site-author-name {
   margin: 5px 0 0;
@@ -1705,7 +1706,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #ffff34;
+  background: #3dcf4f;
 }
 .feed-link,
 .chat {
@@ -2385,7 +2386,6 @@ hr {
 }
 .site-meta {
   float: left;
-  margin-left: -20px;
   line-height: normal;
 }
 @media (max-width: 767px) {
@@ -2451,13 +2451,11 @@ hr {
 }
 .site-brand-wrapper {
   flex-shrink: 0;
+  flex-grow: 1;
 }
 .site-nav-toggle {
   position: static;
   float: right;
-}
-.site-nav {
-  flex-grow: 1;
 }
 @media (max-width: 767px) {
   .site-nav {
