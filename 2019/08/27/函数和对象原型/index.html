@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0">
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    fancybox: false,
+    mediumzoom: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    }
+  };
+</script>
+
+  <meta name="description" content="在JavaScript中，函数（function）就是对象。 在JavaScript中，有一个Function对象，所有自定义的函数都是Function对象类型的。 Function 是一个构造器，能创建Function对象，即JavaScript中每个函数实际上都是Function 对象  [函数对象].__proto__===Function.prototype    //true  自定义概">
+<meta name="keywords" content="function,prototype">
+<meta property="og:type" content="article">
+<meta property="og:title" content="函数和对象原型">
+<meta property="og:url" content="https://lph666.github.io/2019/08/27/函数和对象原型/index.html">
+<meta property="og:site_name" content="liu&#39;s blog">
+<meta property="og:description" content="在JavaScript中，函数（function）就是对象。 在JavaScript中，有一个Function对象，所有自定义的函数都是Function对象类型的。 Function 是一个构造器，能创建Function对象，即JavaScript中每个函数实际上都是Function 对象  [函数对象].__proto__===Function.prototype    //true  自定义概">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://lph666.github.io/images/%E5%87%BD%E6%95%B0%E4%B8%8E%E5%AF%B9%E8%B1%A1%E5%8E%9F%E5%9E%8B%E5%9B%BE.png">
+<meta property="og:updated_time" content="2019-08-27T07:00:33.788Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="函数和对象原型">
+<meta name="twitter:description" content="在JavaScript中，函数（function）就是对象。 在JavaScript中，有一个Function对象，所有自定义的函数都是Function对象类型的。 Function 是一个构造器，能创建Function对象，即JavaScript中每个函数实际上都是Function 对象  [函数对象].__proto__===Function.prototype    //true  自定义概">
+<meta name="twitter:image" content="https://lph666.github.io/images/%E5%87%BD%E6%95%B0%E4%B8%8E%E5%AF%B9%E8%B1%A1%E5%8E%9F%E5%9E%8B%E5%9B%BE.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://lph666.github.io/2019/08/27/函数和对象原型/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  
+  <title>函数和对象原型 | liu's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">liu's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lph666.github.io/2019/08/27/函数和对象原型/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="liu's blog">
+      <meta itemprop="description" content="liu's blog">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">函数和对象原型
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-08-27 14:31:00 / 修改时间：15:00:33" itemprop="dateCreated datePublished" datetime="2019-08-27T14:31:00+08:00">2019-08-27</time>
+            </span>
+          
+
+          
+            
+
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/javascript/prototype/" itemprop="url" rel="index"><span itemprop="name">prototype</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在JavaScript中，函数（function）就是对象。</p>
+<p>在JavaScript中，有一个Function对象，所有自定义的函数都是Function对象类型的。</p>
+<p>Function 是一个构造器，能创建Function对象，即JavaScript中每个函数实际上都是Function 对象 </p>
+<p><code>[函数对象].__proto__===Function.prototype    //true</code></p>
+<p><img src="/images/%E5%87%BD%E6%95%B0%E4%B8%8E%E5%AF%B9%E8%B1%A1%E5%8E%9F%E5%9E%8B%E5%9B%BE.png" alt></p>
+<h4 id="自定义概念（并非标准-只是为了理解）"><a href="#自定义概念（并非标准-只是为了理解）" class="headerlink" title="自定义概念（并非标准 只是为了理解）"></a>自定义概念（并非标准 只是为了理解）</h4><h5 id="函数对象"><a href="#函数对象" class="headerlink" title="函数对象"></a>函数对象</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1.typeof xxx===&apos;function&apos;</span><br><span class="line">2.默认含有属性 prototype</span><br><span class="line">3.默认含有属性 __proto__</span><br><span class="line">函数对象如：  Object、String等内置对象；</span><br><span class="line">			function fun()&#123;&#125;和fun=function()&#123;&#125;或fun=new Function();等自定义函数</span><br></pre></td></tr></table></figure>
+
+<h5 id="原型对象"><a href="#原型对象" class="headerlink" title="原型对象"></a>原型对象</h5><p>（函数对象的prototype属性 或 实例对象的__proto__属性指向的对象）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.typeof xxx===&apos;object&apos;</span><br><span class="line">2.默认含有属性 constructor 指向函数对象</span><br><span class="line">  [函数对象].prototype.constructor===[函数对象] //true</span><br><span class="line">3.默认含有属性 __proto__</span><br></pre></td></tr></table></figure>
+
+<h5 id="实例对象"><a href="#实例对象" class="headerlink" title="实例对象"></a>实例对象</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.typeof xxx===&apos;object&apos;</span><br><span class="line">2.通过&#123;&#125;创建或new [内置对象]()创建或 new [方法]()创建 </span><br><span class="line">  如：obj=&#123;&#125;；obj=new Object();str=new String(); obj=new fun();（fun为函数名）</span><br><span class="line">3.默认只有属性 __proto__</span><br></pre></td></tr></table></figure>
+
+<h4 id="特殊对象"><a href="#特殊对象" class="headerlink" title="特殊对象"></a>特殊对象</h4><p>Function对象（特殊的函数对象）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1.Function的显式原型属性=自身的隐式原型属性</span><br><span class="line">  Function.prototype===Function.__proto__ //true</span><br><span class="line">  </span><br><span class="line">2.Function的prototype 指向特殊的&apos;原型对象&apos;(原型对象的类型是&apos;object&apos;)</span><br><span class="line">  typeof Function.prototype===&apos;function&apos;  </span><br><span class="line">  </span><br><span class="line">3.所有函数的构造器，其它所有函数对象的__proto__属性值等于它的prototype属性值</span><br><span class="line">  [函数对象].__proto__===Function.prototype	//true</span><br></pre></td></tr></table></figure>
+
+<p>起源函数原型对象（Function的原型对象）（类型是’function’的特殊原型对象）(所有函数的原型)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1.Function的prototype和__proto__属性都指向的对象</span><br><span class="line">  起源函数原型对象:Function.prototype=Function.__proto__</span><br><span class="line">  </span><br><span class="line">2.所有函数对象的__proto__属性都指向它 (也可以认为是所有函数的原型)</span><br><span class="line">  [函数对象].__proto__===Function.prototype	//true</span><br><span class="line">  </span><br><span class="line">3.它的__proto__属性指向起源原型对象</span><br><span class="line">  Function.prototype.__proto__===Object.prototype</span><br></pre></td></tr></table></figure>
+
+<p>起源原型对象（Object的原型对象）（原型链的终点）</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1.</span><span class="built_in">Object</span>的prototype属性指向的对象</span><br><span class="line">  起源原型对象:<span class="built_in">Object</span>.prototype</span><br><span class="line">  </span><br><span class="line"><span class="number">2.</span>所有原型对象的__proto__属性都指向它</span><br><span class="line">  [函数对象].prototype.__proto__===<span class="built_in">Object</span>.prototype <span class="comment">//true</span></span><br><span class="line">  [实例对象].__proto__.__proto__===<span class="built_in">Object</span>.prototype  <span class="comment">//true</span></span><br><span class="line">  </span><br><span class="line"><span class="number">3.</span>它的__proto__属性=<span class="literal">null</span></span><br><span class="line">  <span class="built_in">Object</span>.prototype.__proto__===<span class="literal">null</span>  <span class="comment">//true</span></span><br><span class="line">  </span><br><span class="line"><span class="number">4.</span>由<span class="number">2</span>，<span class="number">3</span>得出结论 它的__proto__为原型链的终点</span><br></pre></td></tr></table></figure>
+
+<h4 id="Object内置对象"><a href="#Object内置对象" class="headerlink" title="Object内置对象"></a>Object内置对象</h4><p><code>Object</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="built_in">arguments</span>: &lt;Permission denied&gt;</span><br><span class="line">    assign: function assign()</span><br><span class="line">    caller: &lt;Permission denied&gt;</span><br><span class="line">    create: function create() </span><br><span class="line">    defineProperties: function defineProperties() </span><br><span class="line">    defineProperty: function defineProperty() </span><br><span class="line">    entries: function entries() </span><br><span class="line">    freeze: function freeze() </span><br><span class="line">    getOwnPropertyDescriptor: function getOwnPropertyDescriptor() </span><br><span class="line">    getOwnPropertyDescriptors: function getOwnPropertyDescriptors() </span><br><span class="line">    getOwnPropertyNames: function getOwnPropertyNames() </span><br><span class="line">    getOwnPropertySymbols: function getOwnPropertySymbols() </span><br><span class="line">    getPrototypeOf: function getPrototypeOf() </span><br><span class="line">    is: function is() </span><br><span class="line">    isExtensible: function isExtensible() </span><br><span class="line">    isFrozen: function isFrozen() </span><br><span class="line">    isSealed: function isSealed() </span><br><span class="line">    keys: function keys() </span><br><span class="line">    length: 1</span><br><span class="line">    name: "Object"</span><br><span class="line">    preventExtensions: function preventExtensions() </span><br><span class="line"></span><br><span class="line">    prototype: Object   </span><br><span class="line"></span><br><span class="line">    seal: function seal() </span><br><span class="line">    setPrototypeOf: function setPrototypeOf() </span><br><span class="line">    values: function values() </span><br><span class="line"></span><br><span class="line">    __proto__: function() //函数类型</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Object.prototype</code>  </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="keyword">constructor</span>: ƒ Object()</span><br><span class="line">    hasOwnProperty: ƒ hasOwnProperty()</span><br><span class="line">    isPrototypeOf: ƒ isPrototypeOf()</span><br><span class="line">    propertyIsEnumerable: ƒ propertyIsEnumerable()</span><br><span class="line">    toLocaleString: ƒ toLocaleString()</span><br><span class="line">    toString: ƒ toString()</span><br><span class="line">    valueOf: ƒ valueOf()</span><br><span class="line">    __defineGetter__: ƒ __defineGetter__()</span><br><span class="line">    __defineSetter__: ƒ __defineSetter__()</span><br><span class="line">    __lookupGetter__: ƒ __lookupGetter__()</span><br><span class="line">    __lookupSetter__: ƒ __lookupSetter__()</span><br><span class="line">    <span class="keyword">get</span> __proto__: ƒ __proto__()</span><br><span class="line">    <span class="keyword">set</span> __proto__: ƒ __proto__()</span><br><span class="line">    __proto__: null</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Object.prototype指向特殊的起源原型对象</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*所有原型对象的__proto__属性都指向 起源原型对象</span></span><br><span class="line"><span class="comment">[函数对象].prototype.__proto__===Object.prototype  //true</span></span><br><span class="line"><span class="comment">[实例对象].__proto__.__proto__===Object.prototype  //true</span></span><br><span class="line"><span class="comment">包括特殊的 Function.prototype.__proto__===Object.prototype //true</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="built_in">String</span>.prototype.__proto__===<span class="built_in">Object</span>.prototype <span class="comment">//true</span></span><br><span class="line"><span class="keyword">var</span> str=<span class="keyword">new</span> <span class="built_in">String</span>();</span><br><span class="line">str.__proto__.__proto__===<span class="built_in">Object</span>.prototype <span class="comment">//true</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Fun</span>(<span class="params"></span>)</span>&#123;&#125;</span><br><span class="line">Fun.prototype.__proto__===<span class="built_in">Object</span>.prototype <span class="comment">//true</span></span><br><span class="line"><span class="keyword">var</span> fun=<span class="keyword">new</span> Fun();</span><br><span class="line">fun.__proto__.__proto__===<span class="built_in">Object</span>.prototype <span class="comment">//true</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//起源原型对象是原型链的顶端，它的__proto__属性值=null</span></span><br><span class="line"><span class="built_in">Object</span>.prototype.__proto__=== <span class="literal">null</span>;		<span class="comment">//true</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Function内置对象"><a href="#Function内置对象" class="headerlink" title="Function内置对象"></a>Function内置对象</h4><p><code>Function</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="built_in">arguments</span>: &lt;Permission denied&gt;</span><br><span class="line">    caller: &lt;Permission denied&gt;</span><br><span class="line">    length: 1</span><br><span class="line">    name: "Function"</span><br><span class="line"></span><br><span class="line">    prototype: function() //函数类型</span><br><span class="line">    __proto__: function() //函数类型</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Function.prototype === Function.__proto__</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    apply: <span class="function"><span class="keyword">function</span> <span class="title">apply</span>(<span class="params"></span>) </span></span><br><span class="line"><span class="function">    <span class="title">arguments</span>: &lt;<span class="title">Permission</span> <span class="title">denied</span>&gt;</span></span><br><span class="line"><span class="function">    <span class="title">bind</span>: <span class="title">function</span> <span class="title">bind</span>(<span class="params"></span>) </span></span><br><span class="line"><span class="function">    <span class="title">call</span>: <span class="title">function</span> <span class="title">call</span>(<span class="params"></span>) </span></span><br><span class="line"><span class="function">    <span class="title">caller</span>: &lt;<span class="title">Permission</span> <span class="title">denied</span>&gt;</span></span><br><span class="line"><span class="function">    <span class="title">constructor</span>: <span class="title">function</span> <span class="title">Function</span>(<span class="params"></span>) </span></span><br><span class="line"><span class="function">    <span class="title">length</span>: 0</span></span><br><span class="line"><span class="function">    <span class="title">name</span>: ""</span></span><br><span class="line"><span class="function">    <span class="title">toString</span>: <span class="title">function</span> <span class="title">toString</span>(<span class="params"></span>) </span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="title">__proto__</span>: <span class="title">Object</span></span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Function.prototype指向起源函数原型对象</strong>（特例：类型是’function’）</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Function的prototype和__proto__属性全等</span></span><br><span class="line"><span class="built_in">Function</span>.prototype===<span class="built_in">Function</span>.__proto__ 	<span class="comment">//true</span></span><br><span class="line"><span class="comment">//特殊的是 类型为'function'</span></span><br><span class="line">(<span class="keyword">typeof</span> <span class="built_in">Function</span>.prototype)===<span class="string">"function"</span> 	<span class="comment">//true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*其实 所有函数对象的__proto__属性都指向 起源函数原型对象</span></span><br><span class="line"><span class="comment">[函数对象].__proto__ === Function.prototype; //true</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="built_in">Object</span>.__proto__=== <span class="built_in">Function</span>.prototype;		<span class="comment">//true</span></span><br><span class="line"><span class="built_in">String</span>.__proto__=== <span class="built_in">Function</span>.prototype;		<span class="comment">//true</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fun</span>(<span class="params"></span>)</span>&#123;&#125;</span><br><span class="line">fun.__proto__=== <span class="built_in">Function</span>.prototype;		<span class="comment">//true</span></span><br><span class="line"><span class="keyword">var</span> fun2=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;&#125;</span><br><span class="line">fun2.__proto__=== <span class="built_in">Function</span>.prototype;		<span class="comment">//true</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h5><p><a href="https://blog.csdn.net/aitangyong/article/details/44837655" target="_blank" rel="noopener">https://blog.csdn.net/aitangyong/article/details/44837655</a> </p>
+
+      
+    </div>
+
+    
+
+    
+      
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/function/" rel="tag"># function</a>
+          
+            <a href="/tags/prototype/" rel="tag"># prototype</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/27/执行上下文/" rel="next" title="执行上下文">
+                <i class="fa fa-chevron-left"></i> 执行上下文
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  
+    <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="liu's blog">
+  
+  <p class="site-author-name" itemprop="name">liu's blog</p>
+  <div class="site-description motion-element" itemprop="description">liu's blog</div>
+</div>
+
+
+  <nav class="site-state motion-element">
+    
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+
+
+
+
+  <div class="links-of-author motion-element">
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/lph666" title="GitHub &rarr; https://github.com/lph666" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="/2580430594@qq.com" title="E-Mail &rarr; 2580430594@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+
+
+
+
+
+
+
+          
+          
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义概念（并非标准-只是为了理解）"><span class="nav-number">1.</span> <span class="nav-text">自定义概念（并非标准 只是为了理解）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#函数对象"><span class="nav-number">1.1.</span> <span class="nav-text">函数对象</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#原型对象"><span class="nav-number">1.2.</span> <span class="nav-text">原型对象</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#实例对象"><span class="nav-number">1.3.</span> <span class="nav-text">实例对象</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#特殊对象"><span class="nav-number">2.</span> <span class="nav-text">特殊对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Object内置对象"><span class="nav-number">3.</span> <span class="nav-text">Object内置对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Function内置对象"><span class="nav-number">4.</span> <span class="nav-text">Function内置对象</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#参考"><span class="nav-number">4.1.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liu's blog</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.2.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/schemes/muse.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+
+
+
+  
+
+
+
+
+  
+
+
+
+<script>
+// GET RESPONSIVE HEIGHT PASSED FROM IFRAME
+
+window.addEventListener("message", function(e) {
+  var data = e.data;
+  if ((typeof data === 'string') && (data.indexOf('ciu_embed') > -1)) {
+    var featureID = data.split(':')[1];
+    var height = data.split(':')[2];
+    $(`iframe[data-feature=${featureID}]`).height(parseInt(height) + 30);
+  }
+}, false);
+</script>
+
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>
